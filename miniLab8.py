@@ -187,10 +187,10 @@ def get_weather_from_session(intent, session):
     if session_attributes and "city" in session_attributes and "state" in session_attributes:
         current_city = session['attributes']['city']
         current_state = session['attributes']['state']
-        obs = owm.weather_at_place(current_city + ',' + current_state + ',' + ' US')
+        obs = owm.weather_at_place(current_city + ', ' + current_state + ',' + ' US')
         w = obs.get_weather().get_detailed_status()
 
-        speech_output = "The weather in " + current_city + current_state +  \
+        speech_output = "The weather in " + current_city + ", " + current_state +  \
                         " is " + w + ". Goodbye."
         should_end_session = True
     else:
