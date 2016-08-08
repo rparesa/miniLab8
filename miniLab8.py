@@ -135,7 +135,7 @@ def set_city_in_session(intent, session):
 
     if 'City' in intent['slots']:
         current_city = intent['slots']['City']['value']
-        session_attributes = create_city_attributes(current_city)
+        session_attributes['city'] = current_city
         speech_output = "I now know your city is " + \
                         current_city + \
                         ". You can now set your state by saying, " \
@@ -156,13 +156,13 @@ def set_state_in_session(intent, session):
     Sets the location of a state
     """
     card_title = intent['name']
-    session_attributes = {}
+    session_attributes = session.get('attributes', {})
     should_end_session = False
 
 
     if 'State' in intent['slots']:
         current_state = intent['slots']['State']['value']
-        session_attributes = create_state_attributes(current_state)
+        session_attributes['state'] = current_state
         speech_output = "I now know your state is " + \
                         current_state + \
                         ". You can ask me the weather by saying, " \
@@ -177,23 +177,17 @@ def set_state_in_session(intent, session):
                         "my state is Washington?"
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
-
-def create_city_attributes(city):
-    return {"city": city}
-
-
-def create_state_attributes(state):
-    return {"state": state}
-
-
+        
 def get_weather_from_session(intent, session):
     session_attributes = {}
     reprompt_text = None
 
-    if session.get('attributes', {}) and "city" in session.get('attributes', {}) and "state" in session.get('attributes', {}):
+    session_attributes = session.get('attributes', {})
+
+    if session_attributes and "city" in session_attributes and "state" in session_attributes:
         current_city = session['attributes']['city']
         current_state = session['attributes']['state']
-        obs = owm.weather_at(current_city + ',' + current_state + ',' + US)
+        obs = owm.weather_at_place(current_city + ',' + current_state + ',' + ' US')
         w = obs.get_weather().get_detailed_status()
 
         speech_output = "The weather in " + current_city + current_state +  \
